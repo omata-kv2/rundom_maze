@@ -5,18 +5,18 @@ const CONFIG = {
   cellSize: 4,             // 1マスの幅（仮設定）
   wallHeight: 6.8,
   playerRadius: 0.34,
-  walkSpeed: 3.2,
+  walkSpeed: 3.0,
   runSpeed: 6.0,
   maxStamina: 20,
   staminaUsePerSecond: 1,
   staminaRegenPerSecond: 1,
   goalMinStraightDistance: 32, // スポーンからの直線距離（ワールド単位）
-  enemyWalkSpeed: 2.0,
-  enemyChaseSpeed: 3.0,
+  enemyWalkSpeed: 3.0,
+  enemyChaseSpeed: 4.5,
   enemyDetectDistance: 22,
   enemyFovDegrees: 105,
   enemyCatchDistance: 1.25,
-  enemySpawnMinDistance: 48,
+  enemySpawnMinDistance: 10,
   enemyRepathInterval: 0.65
 };
 
