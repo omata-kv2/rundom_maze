@@ -370,8 +370,8 @@ function startGame(){
   buildWorld();clock.start();running=true;showMessage("ゴールを探せ。追跡者に注意。");
   if(matchMedia("(pointer:fine)").matches)renderer.domElement.requestPointerLock?.();
 }
-$("start-button").addEventListener("click",startGame);
-$("restart-button").addEventListener("click",startGame);
+$("start-button").addEventListener("pointerdown",startGame);
+$("restart-button").addEventListener("pointerdown",startGame);
 addEventListener("resize",()=>{
   if(!camera||!renderer)return;
   camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);
