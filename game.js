@@ -1,42 +1,47 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
 
 const CONFIG = {
-  mazeCells: 21,          // 迷路の一辺（奇数推奨）
-  cellSize: 4,             // 1マスの幅（仮設定）
+  mazeCells: 21,
+  cellSize: 4,
   wallHeight: 6.8,
   playerRadius: 0.34,
-  walkSpeed: 3.0,
+  walkSpeed: 3.2,
   runSpeed: 6.0,
   maxStamina: 20,
   staminaUsePerSecond: 1,
   staminaRegenPerSecond: 1,
-  goalMinStraightDistance: 32, // スポーンからの直線距離（ワールド単位）
-  enemyWalkSpeed: 3.0,
-  enemyChaseSpeed: 4.5,
+  goalMinStraightDistance: 32,
+  enemyWalkSpeed: 2.0,
+  enemyChaseSpeed: 3.0,
   enemyDetectDistance: 22,
   enemyFovDegrees: 105,
   enemyCatchDistance: 1.25,
-  enemySpawnMinDistance: 10,
-  enemyRepathInterval: 0.65
+  enemySpawnMinDistance: 48,
+  enemyRepathInterval: 0.65,
+  radarGreenDist: 24,
+  radarYellowDist: 12,
+  captureWaitTime: 27
 };
 
 const CHASER_IMAGES = [
-  "./assets/chasers/dddn_scare.png",
   "./assets/chasers/inmu_king.png",
 ];
 
 let scene, camera, renderer, clock;
 let maze, player, enemy, goalMesh;
-let running = false, ended = false;
+let running = false, ended = false, isFirstPlay = true;
 let stamina = CONFIG.maxStamina;
 let yaw = 0, pitch = 0;
 let keys = {};
 let joystick = {x:0,z:0};
 let sprintHeld = false;
 let enemyState = "patrol";
-let enemyTarget = null;
+let enemyTarget = null, enemyNextPatrolCell = null;
 let lastRegenTick = 0, lastUseTick = 0;
-let messageTimer = 0;\nlet enemyRepathTimer = 0;
+let messageTimer = 0;
+let enemyRepathTimer = 0;
+let spawnCell = {x:1, z:1};
+
 const raycaster = new THREE.Raycaster();
 const loader = new THREE.TextureLoader();
 
@@ -62,7 +67,6 @@ function generateMaze(size) {
     grid[z+dz][x+dx]=0;
     stack.push([x+dx,z+dz]);
   }
-  // Backroomsらしい広い部屋を複数作り、迷路の単調さを減らす
   const roomCount = 7;
   for (let i = 0; i < roomCount; i++) {
     const rw = 2 + Math.floor(Math.random() * 3);
@@ -73,8 +77,6 @@ function generateMaze(size) {
       for (let x = rx; x < Math.min(size - 1, rx + rw); x++) grid[z][x] = 0;
     }
   }
-
-  // 既存通路間にループを追加して分岐を増やす
   for (let z = 1; z < size - 1; z++) {
     for (let x = 1; x < size - 1; x++) {
       if (grid[z][x] !== 1 || Math.random() > 0.075) continue;
@@ -83,8 +85,6 @@ function generateMaze(size) {
       if (horizontal || vertical) grid[z][x] = 0;
     }
   }
-
-  // 壁の奥に短い隠し通路を数本追加（通路同士を接続）
   let secretCount = 0;
   for (let z = 2; z < size - 2 && secretCount < 4; z++) {
     for (let x = 2; x < size - 2 && secretCount < 4; x++) {
@@ -183,7 +183,6 @@ function buildWorld(){
       const p=cellWorld(x,z);wall.position.set(p.x,CONFIG.wallHeight/2,p.z);scene.add(wall);
     }
   }
-  // 簡易蛍光灯
   for(let z=1;z<maze.length-1;z+=4) for(let x=1;x<maze.length-1;x+=4){
     if(maze[z][x]===0){
       const p=cellWorld(x,z);
@@ -195,8 +194,7 @@ function buildWorld(){
 
   const open=[];
   for(let z=1;z<maze.length-1;z++)for(let x=1;x<maze.length-1;x++)if(maze[z][x]===0)open.push({x,z});
-  const spawn={x:1,z:1};
-  const spawnPos=cellWorld(spawn.x,spawn.z);
+  const spawnPos=cellWorld(spawnCell.x,spawnCell.z);
   player={position:new THREE.Vector3(spawnPos.x,1.65,spawnPos.z)};
   camera.position.copy(player.position);
 
@@ -230,25 +228,43 @@ function buildWorld(){
     return Math.hypot(p.x-spawnPos.x,p.z-spawnPos.z)>=CONFIG.enemySpawnMinDistance &&
       Math.hypot(p.x-gp.x,p.z-gp.z)>16;
   });
-  const enemyPool=enemyCandidates.length?enemyCandidates:open.filter(c=>Math.abs(c.x-spawn.x)+Math.abs(c.z-spawn.z)>8);
+  const enemyPool=enemyCandidates.length?enemyCandidates:open.filter(c=>Math.abs(c.x-spawnCell.x)+Math.abs(c.z-spawnCell.z)>8);
   const enemyCell=enemyPool[Math.floor(Math.random()*enemyPool.length)] || open[open.length-1];
   const ep=cellWorld(enemyCell.x,enemyCell.z);
   enemy=new THREE.Group();enemy.position.set(ep.x,0,ep.z);scene.add(enemy);
-  const selected=CHASER_IMAGES[Math.floor(Math.random()*CHASER_IMAGES.length)];
+  const selected=CHASER_IMAGES[0];
   loader.load(selected,texture=>{
     texture.colorSpace=THREE.SRGBColorSpace;
     const mat=new THREE.MeshBasicMaterial({map:texture,transparent:true,side:THREE.DoubleSide});
     const plane=new THREE.Mesh(new THREE.PlaneGeometry(2.15,2.15),mat);
     plane.position.y=1.08;enemy.add(plane);
-  });
+  }, undefined, err => console.warn("Failed to load enemy image", err));
   enemy.userData.cell={...enemyCell};
   enemyState="patrol";enemyTarget=null;
 }
 
+function resetWorld(){
+  const spawnPos = cellWorld(spawnCell.x, spawnCell.z);
+  player.position.set(spawnPos.x, 1.65, spawnPos.z);
+  camera.position.copy(player.position);
+  camera.rotation.set(0,0,0);
+  
+  const open=[];
+  for(let z=1;z<maze.length-1;z++)for(let x=1;x<maze.length-1;x++)if(maze[z][x]===0)open.push({x,z});
+  const enemyCandidates=open.filter(c=>{
+    const p=cellWorld(c.x,c.z);
+    return Math.hypot(p.x-spawnPos.x,p.z-spawnPos.z)>=CONFIG.enemySpawnMinDistance;
+  });
+  const enemyPool=enemyCandidates.length?enemyCandidates:open.filter(c=>Math.abs(c.x-spawnCell.x)+Math.abs(c.z-spawnCell.z)>8);
+  const enemyCell=enemyPool[Math.floor(Math.random()*enemyPool.length)] || open[open.length-1];
+  const ep=cellWorld(enemyCell.x,enemyCell.z);
+  enemy.position.set(ep.x,0,ep.z);
+  enemyState="patrol"; enemyTarget=null; enemyNextPatrolCell=null; enemyRepathTimer=0;
+}
+
 function lineOfSight(from,to){
   const start=worldCell(from), end=worldCell(to);
-  const a=start.x, b=start.z;
-  const c=end.x, d=end.z;
+  const a=start.x, b=start.z, c=end.x, d=end.z;
   let x=a,z=b,dx=Math.abs(c-a),dz=Math.abs(d-b),sx=a<c?1:-1,sz=b<d?1:-1,err=dx-dz;
   while(!(x===c&&z===d)){
     if(!(x===a&&z===b)&&maze[z]?.[x]===1)return false;
@@ -269,14 +285,26 @@ function canEnemySeePlayer(){
   return angle<CONFIG.enemyFovDegrees/2 && lineOfSight(enemy.position,player.position);
 }
 function pickPatrolTarget(){
+  const open = [];
+  for(let z=1;z<maze.length-1;z++)for(let x=1;x<maze.length-1;x++)if(maze[z][x]===0)open.push({x,z});
   const c=worldCell(enemy.position);
-  const options=[[0,-1],[1,0],[0,1],[-1,0]].map(([dx,dz])=>({x:c.x+dx,z:c.z+dz}))
-    .filter(p=>maze[p.z]?.[p.x]===0);
-  if(options.length)enemyTarget=options[Math.floor(Math.random()*options.length)];
+  const candidates = open.filter(p => {
+    const dist = Math.abs(p.x - c.x) + Math.abs(p.z - c.z);
+    return dist > 5 && dist < 20;
+  });
+  if(candidates.length) {
+    enemyTarget = candidates[Math.floor(Math.random()*candidates.length)];
+  } else {
+    enemyTarget = open[Math.floor(Math.random()*open.length)];
+  }
 }
 function moveEnemy(dt){
-  if(canEnemySeePlayer() && enemyState!=="chase"){enemyState="chase";enemyRepathTimer=0;enemyTarget=null;}
-  else if(enemyState==="chase" && !lineOfSight(enemy.position,player.position)){enemyState="patrol";enemyTarget=null;}
+  if(canEnemySeePlayer() && enemyState!=="chase"){
+    enemyState="chase"; enemyRepathTimer=0; enemyTarget=null;
+  }
+  else if(enemyState==="chase" && !lineOfSight(enemy.position,player.position)){
+    enemyState="patrol"; enemyTarget=null; enemyNextPatrolCell=null;
+  }
   $("status").textContent=enemyState==="chase"?"発見された！":"探索中";
   let target;
   if(enemyState==="chase"){
@@ -288,9 +316,26 @@ function moveEnemy(dt){
     }
     if(enemyTarget) target=cellWorld(enemyTarget.x,enemyTarget.z);
   }else{
-    if(!enemyTarget||Math.hypot(enemy.position.x-cellWorld(enemyTarget.x,enemyTarget.z).x,enemy.position.z-cellWorld(enemyTarget.x,enemyTarget.z).z)<.35)pickPatrolTarget();
-    if(enemyTarget)target=cellWorld(enemyTarget.x,enemyTarget.z);
+    if(!enemyTarget || Math.hypot(enemy.position.x-cellWorld(enemyTarget.x,enemyTarget.z).x,enemy.position.z-cellWorld(enemyTarget.x,enemyTarget.z).z)<1.5){
+      pickPatrolTarget();
+      enemyRepathTimer = 0; 
+    }
+    enemyRepathTimer -= dt;
+    if(enemyRepathTimer <= 0){
+      enemyRepathTimer = CONFIG.enemyRepathInterval;
+      if(enemyTarget){
+        const path=findPath(worldCell(enemy.position), enemyTarget);
+        if(path.length>1) {
+          enemyNextPatrolCell = {x:path[1].x, z:path[1].z};
+        } else {
+          enemyNextPatrolCell = null;
+          enemyTarget = null;
+        }
+      }
+    }
+    if(enemyNextPatrolCell) target=cellWorld(enemyNextPatrolCell.x,enemyNextPatrolCell.z);
   }
+  
   if(target){
     const dx=target.x-enemy.position.x,dz=target.z-enemy.position.z,len=Math.hypot(dx,dz);
     if(len>.08){
@@ -300,6 +345,27 @@ function moveEnemy(dt){
     }
   }
   if(Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<CONFIG.enemyCatchDistance)finish(false);
+}
+
+function updateRadar() {
+  if (!enemy || ended) return;
+  const dx = enemy.position.x - player.position.x;
+  const dz = enemy.position.z - player.position.z;
+  const dist = Math.hypot(dx, dz);
+  
+  const angle = Math.atan2(dx, dz) - yaw;
+  
+  const needle = $("radar-needle");
+  needle.style.transform = `translateX(-50%) rotate(${-angle}rad)`;
+  
+  const radar = $("radar");
+  if (dist < CONFIG.radarYellowDist) {
+    radar.style.borderColor = "red";
+  } else if (dist < CONFIG.radarGreenDist) {
+    radar.style.borderColor = "yellow";
+  } else {
+    radar.style.borderColor = "green";
+  }
 }
 
 function updateStamina(dt,isRunning,isMoving){
@@ -330,27 +396,49 @@ function movePlayer(dt){
   camera.position.copy(player.position);
   camera.rotation.set(pitch,yaw,0);
 }
+
 function finish(win){
   if(ended)return;ended=true;running=false;
   $("end-title").textContent=win?"ESCAPED":"CAUGHT";
   $("end-text").textContent=win?"非常口から脱出した。":"追跡者に捕まった。";
   if(!win){
-    const scare=$("jumpscare");
-    scare.classList.remove("hidden");
-    scare.classList.add("shake");
-    setTimeout(()=>{
-      scare.classList.add("hidden");
-      scare.classList.remove("shake");
-      $("end-overlay").classList.remove("hidden");
-    },1050);
-  }else $("end-overlay").classList.remove("hidden");
+    const video = $("capture-video");
+    video.style.display = "block";
+    video.currentTime = 0;
+    
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(e => console.warn("Video play error:", e));
+    }
+    
+    $("end-overlay").classList.remove("hidden");
+    const restartBtn = $("restart-button");
+    restartBtn.disabled = true;
+    let timeLeft = CONFIG.captureWaitTime;
+    restartBtn.textContent = `再挑戦 (${timeLeft}秒待機...)`;
+    
+    const timer = setInterval(() => {
+      timeLeft--;
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        restartBtn.disabled = false;
+        restartBtn.textContent = "もう一度プレイ";
+        video.style.display = "none";
+      } else {
+        restartBtn.textContent = `再挑戦 (${timeLeft}秒待機...)`;
+      }
+    }, 1000);
+  }else{
+    $("end-overlay").classList.remove("hidden");
+  }
   if(document.pointerLockElement)document.exitPointerLock();
 }
+
 function showMessage(text){
   $("message").textContent=text;
   $("message").style.opacity="1";
   clearTimeout(messageTimer);
-  messageTimer=setTimeout(()=>$("message").style.opacity=".7",2500);
+  messageTimer=setTimeout(()=>$("message").style.opacity="0",2500);
 }
 function animate(){
   requestAnimationFrame(animate);
@@ -359,19 +447,39 @@ function animate(){
     movePlayer(dt);moveEnemy(dt);
     if(enemy?.children[0]) enemy.children[0].lookAt(camera.position.x,enemy.children[0].getWorldPosition(new THREE.Vector3()).y,camera.position.z);
     goalMesh.rotation.y+=dt*.08;
+    updateRadar();
     if(Math.hypot(player.position.x-goalMesh.position.x,player.position.z-goalMesh.position.z)<1.35)finish(true);
   }
   if(renderer && scene && camera) renderer.render(scene,camera);
 }
+
 function startGame(){
+  document.body.classList.add("game-active");
   $("overlay").classList.add("hidden");$("end-overlay").classList.add("hidden");
-  $("game").innerHTML="";
+  
+  if (isFirstPlay) {
+    $("game").innerHTML="";
+    buildWorld();
+    isFirstPlay = false;
+  } else {
+    resetWorld();
+  }
+
   stamina=CONFIG.maxStamina;yaw=0;pitch=0;ended=false;keys={};joystick={x:0,z:0};sprintHeld=false;
-  buildWorld();clock.start();running=true;showMessage("ゴールを探せ。追跡者に注意。");
+  if(clock) { clock.start(); }
+  running=true;showMessage("ゴールを探せ。追跡者に注意。");
   if(matchMedia("(pointer:fine)").matches)renderer.domElement.requestPointerLock?.();
 }
-$("start-button").addEventListener("pointerdown",startGame);
-$("restart-button").addEventListener("pointerdown",startGame);
+
+function handleStart(e) {
+  e.preventDefault();
+  if (running) return;
+  startGame();
+}
+
+$("start-button").addEventListener("pointerdown", handleStart);
+$("restart-button").addEventListener("pointerdown", handleStart);
+
 addEventListener("resize",()=>{
   if(!camera||!renderer)return;
   camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);

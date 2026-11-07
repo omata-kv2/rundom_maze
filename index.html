@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <meta name="theme-color" content="#171713">
-  <title>MAZE ESCAPE - 3D Prototype</title>
+  <title>MAZE ESCAPE - Backrooms Edition v2</title>
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
@@ -19,6 +19,9 @@
       <div class="panel status-panel">
         <div class="hud-label">STATUS</div>
         <div id="status">探索中</div>
+      </div>
+      <div id="radar" class="radar">
+        <div id="radar-needle"></div>
       </div>
     </div>
     <div id="crosshair">+</div>
@@ -45,9 +48,9 @@
       <div class="small-note">PCでは開始後に画面をクリックするとマウス視点操作が有効になります。</div>
     </div>
   </div>
-  <div id="jumpscare" class="jumpscare hidden" aria-hidden="true">
-    <img src="./assets/chasers/dddn_scare.png" alt="">
-  </div>
+  
+  <video id="capture-video" src="./assets/videos/inmuking.mp4" playsinline></video>
+
   <div id="end-overlay" class="overlay hidden">
     <div class="dialog">
       <div class="eyebrow">MAZE ESCAPE</div>
