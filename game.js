@@ -156,7 +156,7 @@ function buildWorld(){
   renderer.shadowMap.enabled=true;
   $("game").appendChild(renderer.domElement);
   clock=new THREE.Clock();
-
+  loader.load('./assets/textures/wall.jpeg', tex => { wallMat.map = tex; wallMat.needsUpdate = true; });
   scene.add(new THREE.HemisphereLight(0xd8cda7,0x29251b,0.9));
   const light=new THREE.DirectionalLight(0xffe6ad,.22);
   light.position.set(5,12,4);scene.add(light);
