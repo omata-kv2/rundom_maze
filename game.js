@@ -180,16 +180,10 @@ function buildWorld(){
   const floorMat=new THREE.MeshStandardMaterial({map:carpetTexture,color:0xffffff,roughness:1});
   const ceilingMat=new THREE.MeshStandardMaterial({color:0x9c936e,roughness:1});
   const wallMat=new THREE.MeshStandardMaterial({color:0xb9ad78,roughness:1});
-
-  // ===============================================================
-  // 【壁・床・天井のテクスチャ（模様）を自由に変更する方法】
-  // 以下の行の行頭にある「//」を消して、画像へのパスを指定してください。
-  // 画像は assets/textures/ フォルダ等に配置してください。
-  // ===============================================================
-  // loader.load('./assets/textures/wall.jpg', tex => { wallMat.map = tex; wallMat.needsUpdate = true; });
-  // loader.load('./assets/textures/floor.jpg', tex => { tex.wrapS=tex.wrapT=THREE.RepeatWrapping; tex.repeat.set(maze.length/2,maze.length/2); floorMat.map = tex; floorMat.needsUpdate = true; });
-  // loader.load('./assets/textures/ceiling.jpg', tex => { tex.wrapS=tex.wrapT=THREE.RepeatWrapping; tex.repeat.set(maze.length/2,maze.length/2); ceilingMat.map = tex; ceilingMat.needsUpdate = true; });
-  // ===============================================================
+  
+  loader.load('./assets/textures/wall.jpeg', tex => { wallMat.map = tex; wallMat.needsUpdate = true; });
+  loader.load('./assets/textures/floor.jpeg', tex => { tex.wrapS=tex.wrapT=THREE.RepeatWrapping; tex.repeat.set(maze.length/2,maze.length/2); floorMat.map = tex; floorMat.needsUpdate = true; });
+  loader.load('./assets/textures/ceiling.jpeg', tex => { tex.wrapS=tex.wrapT=THREE.RepeatWrapping; tex.repeat.set(maze.length/2,maze.length/2); ceilingMat.map = tex; ceilingMat.needsUpdate = true; });
 
   const floor=new THREE.Mesh(new THREE.PlaneGeometry(CONFIG.mazeCells*CONFIG.cellSize,CONFIG.mazeCells*CONFIG.cellSize),floorMat);
   floor.rotation.x=-Math.PI/2;floor.position.y=0;scene.add(floor);
