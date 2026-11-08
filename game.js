@@ -17,7 +17,7 @@ const CONFIG = {
   
   enemyDetectDistance: 20, // 視認距離を20mに修正
   enemyFovDegrees: 360,    // 全方位に目を設定 (360度)
-  enemyCatchDistance: 1.5,
+  enemyCatchDistance: 2.0,
   enemySpawnMinDistance: 48,
   enemyRepathInterval: 0.65,
   radarGreenDist: 24,
