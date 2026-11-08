@@ -10,15 +10,16 @@ const CONFIG = {
   maxStamina: 20,
   staminaUsePerSecond: 1,
   staminaRegenPerSecond: 1,
-  goalMinStraightDistance: 32,
+  goalMinStraightDistance: 40,
   
-  enemyWalkSpeed: 3.2, 
-  enemyChaseSpeed: 5.8,
+  enemyWalkSpeed: 5.0, 
+  enemyChaseSpeed: 6.0,
   
   enemyDetectDistance: 20, // 視認距離を20mに修正
   enemyFovDegrees: 360,    // 全方位に目を設定 (360度)
   enemyCatchDistance: 2.2,
-  enemySpawnMinDistance: 48,
+  enemySpawnMinDistance: 10,
+  enemySpawnMaxDistance: 20,
   enemyRepathInterval: 0.65,
   radarGreenDist: 24,
   radarYellowDist: 12,
