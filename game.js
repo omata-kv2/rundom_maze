@@ -595,8 +595,8 @@ function buildWorld(){
       lampMesh.position.set(p.x,CONFIG.wallHeight-.08,p.z);
       scene.add(lampMesh);
 
-      const baseInt = isRedLight ? 2.5 : 2.0;
-      const pl = new THREE.PointLight(lightColor, baseInt, 16.0);
+      const baseInt = isRedLight ? 5.0 : 4.0;
+      const pl = new THREE.PointLight(lightColor, baseInt, 20.0);
       pl.position.set(p.x, 2.8, p.z);
       scene.add(pl);
 
