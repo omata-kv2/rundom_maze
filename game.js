@@ -517,7 +517,7 @@ function buildWorld(){
   $("game").appendChild(renderer.domElement);
   clock=new THREE.Clock();
 
-  scene.add(new THREE.HemisphereLight(0x666666, 0x222222, 0.8));
+  scene.add(new THREE.HemisphereLight(0x666666, 0x222222, 1.0));
   const light=new THREE.DirectionalLight(0x666655, .15);
   light.position.set(5,12,4); scene.add(light);
 
