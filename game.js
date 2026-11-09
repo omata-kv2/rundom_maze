@@ -43,7 +43,7 @@ const CONFIG = {
   drawDistance: 36.0,        // 描画限界距離（カメラのFar・カリング範囲）
   lightDrawDistance: 20.0,   // ポイントライト適用限界距離
   lodCellDistance: 7,
-  fogNear: 4.0,              // 霧の開始距離
+  fogNear: 8.0,              // 霧の開始距離
   fogFar: 36.0               // 霧の最深距離（描画限界と一致させる）
 };
 
@@ -530,7 +530,7 @@ function buildWorld(){
   clock=new THREE.Clock();
 
   // 暗いホラーな環境光
-  scene.add(new THREE.HemisphereLight(0x333333, 0x050505, 0.4));
+  scene.add(new THREE.HemisphereLight(0x666666, 0x222222, 0.8));
   const light=new THREE.DirectionalLight(0x666655, .15);
   light.position.set(5,12,4); scene.add(light);
 
