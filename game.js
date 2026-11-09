@@ -609,15 +609,15 @@ function buildWorld(){
       lampMesh.position.set(p.x,CONFIG.wallHeight-.08,p.z);
       scene.add(lampMesh);
 
-      const pl=new THREE.PointLight(lightColor, 0.45, CONFIG.lightDrawDistance);
-      pl.position.set(p.x,2.8,p.z);
-      scene.add(pl);
+      const pl = new THREE.PointLight(lightColor, 2.0, 15.0); // 2.0は明るさ、15.0は光が届く最大距離[m]
+　　　　pl.position.set(p.x, 2.8, p.z);
+　　　　scene.add(pl);
 
       pointLightsList.push({
         position: new THREE.Vector3(p.x, 2.8, p.z),
         light: pl,
         lampMesh: lampMesh,
-        baseIntensity: isRedLight ? 0.6 : 0.45
+        baseIntensity: isRedLight ? 2.5 : 2.0
       });
     }
   }
