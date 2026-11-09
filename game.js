@@ -583,7 +583,7 @@ function buildWorld(){
 
   // ▼ 天井ライトの生成（4セルごとに配置、光度2倍[2.0/2.5]、照射距離16m）
   pointLightsList = [];
-  for(let z=1;z<maze.length-1;z+=4) for(let x=1;x<maze.length-1;x+=4){
+  for(let z=1;z<maze.length-1;z+=2) for(let x=1;x<maze.length-1;x+=2){
     if(maze[z][x]===0){
       const p=cellWorld(x,z);
       
@@ -595,7 +595,7 @@ function buildWorld(){
       lampMesh.position.set(p.x,CONFIG.wallHeight-.08,p.z);
       scene.add(lampMesh);
 
-      const baseInt = isRedLight ? 5.0 : 4.0;
+      const baseInt = isRedLight ? 8.0 : 7.5;
       const pl = new THREE.PointLight(lightColor, baseInt, 20.0);
       pl.position.set(p.x, 2.8, p.z);
       scene.add(pl);
