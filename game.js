@@ -46,7 +46,7 @@ const CONFIG = {
 };
 
 const CHASER_IMAGES = ["./assets/chasers/inmu_king.png"];
-const BOOM_IMAGE = "./assets/chasers/boom.gif";
+const BOOM_IMAGE = "./assets/chasers/boom.png";
 const ROCKET_IMAGE = "./assets/items/rocket.png";
 
 // コンパスの針用カラーパレット (ベース1体 + 追加最大4体 = 最大5体)
