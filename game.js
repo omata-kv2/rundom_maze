@@ -27,14 +27,14 @@ const CONFIG = {
   radarYellowDist: 12,
   captureWaitTime: 27,
 
-  rocketSpawnMinDist: 10,
-  rocketSpawnMaxDist: 15,
+  rocketSpawnMinDist: 1,
+  rocketSpawnMaxDist: 10,
   rocketHitRadius: 1.2,
   projectileSpeed: 12.0,
   projectileHitRadius: 3.0,
   enemyRespawnCooldown: 10.0,
   rocketRespawnCooldown: 10.0,
-  maxRocketAmmo: 2, // 弾数2発
+  maxRocketAmmo: 3, // 弾数3発
 
   renderScale: 0.75,
   maxTextureSize: 512,
