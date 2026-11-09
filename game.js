@@ -1,7 +1,7 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
 
 const CONFIG = {
-  mazeCells: 21,
+  mazeCells: 27,
   cellSize: 4,
   wallHeight: 6.8,
   playerRadius: 0.5,
@@ -175,7 +175,9 @@ function canStand(x,z){
 function placeGoalWithWallCheck(openCells, spawnPos) {
   const candidateCells = openCells.filter(c => {
     const p = cellWorld(c.x, c.z);
-    if (Math.hypot(p.x - spawnPos.x, p.z - spawnPos.z) < CONFIG.goalMinStraightDistance) return false;
+    // ▼ ここを修正：92m以上かつ100m以下の範囲に限定
+    const dist = Math.hypot(p.x - spawnPos.x, p.z - spawnPos.z);
+    if (dist < 92 || dist > 100) return false;
     
     const hasNorthWall = maze[c.z - 1]?.[c.x] === 1;
     const hasSouthWall = maze[c.z + 1]?.[c.x] === 1;
