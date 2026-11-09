@@ -43,7 +43,7 @@ const CONFIG = {
   drawDistance: 36.0,        // 描画限界距離（カメラのFar・カリング範囲）
   lightDrawDistance: 20.0,   // ポイントライト適用限界距離
   lodCellDistance: 7,
-  fogNear: 8.0,              // 霧の開始距離
+  fogNear: 12.0,              // 霧の開始距離
   fogFar: 36.0               // 霧の最深距離（描画限界と一致させる）
 };
 
