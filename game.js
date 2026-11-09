@@ -47,7 +47,7 @@ const CONFIG = {
 };
 
 const CHASER_IMAGES = ["./assets/chasers/inmu_king.png"];
-const BOOM_IMAGE = "./assets/chasers/boom.gif";
+const BOOM_IMAGE = "./assets/chasers/boom.png";
 const ROCKET_IMAGE = "./assets/items/rocket.png";
 
 const NEEDLE_COLORS = ["#ff0000", "#ff00ff", "#00ffff", "#ffff00", "#ff8800"];
