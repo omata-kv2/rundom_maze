@@ -427,9 +427,9 @@ function triggerDash() {
   setTimeout(() => {
     const el = $("se-totugeki");
     if (el) { el.pause(); el.currentTime = 0; }
-  }, 4000);
+  }, 2000);
 
-  showMessage("突進発動！(2秒間無敵突進＆接触爆破)");
+  showMessage("突進発動！野獣を轢き殺せ！！");
 }
 
 function movePlayer(dt) {
