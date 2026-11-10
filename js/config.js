@@ -46,7 +46,7 @@ export const CONFIG = {
 };
 
 export const CHASER_IMAGES = ["./assets/chasers/inmu_king.png"];
-export const BOOM_IMAGE = "./assets/chasers/boom.gif";
+export const BOOM_IMAGE = "./assets/chasers/boom.png";
 export const ROCKET_IMAGE = "./assets/items/rocket.png";
 
 export const NEEDLE_COLORS = ["#ff0000", "#ff00ff", "#00ffff", "#ffff00", "#ff8800", "#00ff00", "#ffffff"];
