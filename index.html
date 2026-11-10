@@ -8,11 +8,9 @@
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  <div id="game"></div>
-  
+  <div id="game"></div>  
   <!-- フルスクリーン視点操作エリア（文字なし・透明） -->
   <div id="look-pad"></div>
-
   <!-- ロード画面 -->
   <div id="loading-screen" class="loading-overlay hidden">
     <div class="loading-box">
@@ -20,10 +18,8 @@
       <div id="loading-text">STAGE GENERATING...</div>
     </div>
   </div>
-
   <div id="hud">
     <img id="rocket-hud" src="./assets/items/rocket.png" class="hidden" alt="Rocket">
-
     <div class="hud-top">
       <div class="panel">
         <div class="hud-label">STAMINA</div>
@@ -34,8 +30,7 @@
         <div class="hud-label">FLOOR / STATUS</div>
         <div id="status"><span id="floor-display">1F</span> / 探索中</div>
         <div id="fps-counter" style="font-size:10px; color:#aaa; margin-top:2px;">FPS: --</div>
-      </div>
-      
+      </div>  
       <div class="compass-container" id="compass-container">
         <div class="compass-wrapper">
           <div class="compass-label">EXIT</div>
@@ -44,7 +39,6 @@
             <div id="exit-distance" class="distance-text">0m</div>
           </div>
         </div>
-
         <div class="compass-wrapper">
           <div class="compass-label">YAJU</div>
           <div class="compass-circle" id="radar">
@@ -53,10 +47,8 @@
         </div>
       </div>
     </div>
-
     <div id="crosshair">+</div>
-    <div id="message" class="message">スタートボタンを押して難易度ルールを設定してください</div>
-    
+    <div id="message" class="message">スタートボタンを押して難易度ルールを設定してください</div>    
     <div id="mobile-controls">
       <div id="joystick"><div id="stick"></div></div>
       <div class="action-buttons">
@@ -66,51 +58,41 @@
       </div>
     </div>
   </div>
-
   <!-- スタート前：設定ダイアログ -->
   <div id="overlay" class="overlay">
     <div class="dialog">
-      <div class="eyebrow">3D HORROR MAZE ESCAPE (v19 高速ダイレクト再生版)</div>
+      <div class="eyebrow">YAJU ESCAPE</div>
       <h1>YAJU ESCAPE</h1>
-      <p>5階層を脱出してゲームクリアを目指せ！</p>
-      
+      <p>5階層を脱出してゲームクリアを目指せ！</p>      
       <div class="settings-group">
-        <h3>【ゲームルール設定】</h3>
-        
+        <h3>【ゲームルール設定】</h3>  
         <div class="toggle-row">
-          <span>各コンパスの使用 (EXIT/野獣)</span>
+          <span>各コンパスの使用</span>
           <label class="switch">
             <input type="checkbox" id="setting-compass" checked>
             <span class="slider round"></span>
           </label>
         </div>
-
         <div class="toggle-row">
-          <span>累進野獣数 (階層上昇で増量)</span>
+          <span>累進野獣数</span>
           <label class="switch">
             <input type="checkbox" id="setting-progressive-enemies" checked>
             <span class="slider round"></span>
           </label>
         </div>
       </div>
-
       <ul>
         <li>1階ごとに15×15の迷路を脱出</li>
-        <li>捕まった時はmain.js内ダイレクト生成動画を即時27秒再生</li>
-        <li>爆破テクスチャを boom.png に統一</li>
       </ul>
-
       <button id="start-button">この設定でゲーム開始</button>
     </div>
   </div>
-
   <audio id="bgm-yarimasune" src="./assets/sounds/yarimasune.mp3" loop></audio>
   <audio id="se-provoke" src="./assets/sounds/114514.mp3"></audio>
   <audio id="se-boom" src="./assets/sounds/boom.mp3"></audio>
   <audio id="se-start" src="./assets/sounds/start.mp3"></audio>
   <audio id="se-restart" src="./assets/sounds/restart.mp3"></audio>
   <audio id="se-clear" src="./assets/sounds/clear.mp3"></audio>
-
   <!-- ゲームオーバー / クリアオーバーレイ -->
   <div id="end-overlay" class="overlay hidden">
     <div class="dialog">
@@ -122,7 +104,6 @@
       <button id="restart-button">1階からやり直す</button>
     </div>
   </div>
-
   <script type="module" src="./js/main.js"></script>
 </body>
 </html>
